@@ -1,0 +1,11 @@
+{% for order in orders %}
+<tr>
+    {% for item in order[1:] %}
+        <td>{{ item | filter_none }}</td>
+    {% endfor %}
+    <td>
+        <a href="/longxing/editorder/{{order['id']}}"><button class="edit"><i class="far fa-edit"></i></button></a>
+        <button class="delete_order" data-id={{order['id']}}><i class="far fa-trash-alt"></i></button>
+    </td>
+</tr>
+{% endfor %}

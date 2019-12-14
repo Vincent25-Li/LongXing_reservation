@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block static %}
+    <link href="/static/css/sheet.css" rel="stylesheet"> 
+    <script src="/static/javascript/sheet.js"></script>  
+{% endblock %}
+
+{% block main %}
+    <h1 class="mb-3">訂位清單</h1>
+    <div class="table-responsive">
+    <div>
+        <form action=""></form>
+        <button id='print'><i class="fas fa-print"></i></button>
+    </div>
+        <table class="table table-hover table-bordered">
+            <thead>
+                <tr>
+                    {% for item in header %}
+                        <th scope="col">{{ item }}</th>
+                    {% endfor %}
+                    <th scope="col">修改/刪除</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    {% for item in order[1:] %}
+                        <td>{{ item | filter_none }}</td>
+                    {% endfor %}
+                    <td>
+                        <a href="/longxing/editorder/{{order['id']}}"><button class="edit"><i class="far fa-edit"></i></button></a>
+                        <button class="delete_order" data-id={{order['id']}}><i class="far fa-trash-alt"></i></button>
+                        <!-- onclick="delet_confirm({{order["id"]}})" -->
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

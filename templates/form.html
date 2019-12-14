@@ -1,0 +1,95 @@
+{% extends "layout.html" %}
+
+{% block static %}
+    <!-- for datepicker -->
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <!---->
+
+    <link href="/static/css/form.css" rel="stylesheet">
+    <script src="/static/javascript/form.js"></script>  
+{% endblock %}
+
+{% block main %}
+
+    <!-- http://getbootstrap.com/docs/4.1/content/typography/ -->
+    <h1 class="mb-3">線上訂位</h1>
+
+    <!-- http://getbootstrap.com/docs/4.1/components/forms/ -->
+    <form action="/longxing/form" method="post" class="needs-validation" novalidate>
+
+        <!--聯絡人資訊-->
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="name">姓名*</label>
+                <input type="text" autocomplete='off' class="form-control" id="name" name='name' required>
+                <div class="invalid-feedback">必填</div>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="phone">電話號碼</label>
+                <input type="text" autocomplete='off' class="form-control" name='phone' id="phone">
+            </div>
+        </div>
+
+        <!--用餐日期-->
+        <div class="form-group">
+            <label for='datepicker'>用餐日期*</label>
+            <input type="text" class="form-control" id="datepicker" name='datepicker' placeholder='請選擇日期' autocomplete='off' required>
+            <div class="invalid-feedback">必填</div>
+        </div>
+
+        <!--用餐時間-->
+        <div class="form-group">
+            <label for='time'>用餐時間</label>
+            <div class="custom-control custom-radio">
+                <span class="section_block">
+                    <input type="radio" class="custom-control-input" id="noon" name="section" value='中午' required>
+                    <label class="custom-control-label" for="noon">中午*</label>
+                </span>
+                <span class="section_block">
+                    <input type="radio" class="custom-control-input" id="night" name="section" value='晚上' required>
+                    <label class="custom-control-label" for="night">晚上*</label>
+                </span>
+            </div>
+            <select class="form-control" id="time" name='time'>
+                <option disabled selected value=''>請選擇時間</option>
+            </select>
+        </div>
+
+        <!--用餐桌數-->
+        <div class="form-group">
+            <label for="tables">用餐桌數*</label>
+            <input type="number" id="tables" class="form-control" name='tables' placeholder='請選擇桌數' required>
+            <div class="invalid-feedback">必填</div>
+        </div>
+
+        <!--用餐人數-->
+        <div class="form-group">
+            <label for="people">用餐人數</label>
+            <input type="number" id="people" class="form-control" name='people' placeholder='請選擇人數'>
+        </div>
+
+        <!--年菜選擇-->
+        <div class="form-group">
+            <label for='dishes'>年菜選擇*</label>
+            <select class="form-control" id="dishes" name='dishes' required>
+                <option disabled selected value=''>請選擇年菜</option>
+                <option>5,000</option>
+                <option>6,000</option>
+                <option>8,000</option>
+                <option>10,000</option>
+            </select>
+            <div class="invalid-feedback">必填</div>
+        </div>
+
+        <!-- 備註 -->
+        <div class="form-group">
+                <label for="remark">備註</label>
+                <textarea class="form-control" id="remark" name="remark" rows="3"></textarea>
+              </div>
+
+        <!-- http://getbootstrap.com/docs/4.1/components/buttons/ -->
+        <button class="btn btn-primary" type="submit">提交</button>
+
+    </form>
+{% endblock %}
