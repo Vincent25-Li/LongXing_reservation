@@ -1,8 +1,3 @@
-// datepicker
-$(function() {
-    $( "#datepicker" ).datepicker();
-});
-
 // JavaScript for disabling form submissions if there are invalid fields
 (function() {
   'use strict';
@@ -23,10 +18,6 @@ $(function() {
 })();
 
 window.addEventListener("DOMContentLoaded", (event) => {
-    // JavaScript to change time according to different sessions
-    document.getElementById("noon").onchange = change2noontime;
-    document.getElementById("night").onchange = change2nighttime;
-
     // Ensure date is valid
     // let datepicker = document.querySelector("input[name='datepicker']")
     
@@ -41,26 +32,3 @@ window.addEventListener("DOMContentLoaded", (event) => {
     // }
 })
 
-function change2noontime() {
-    let noon_time = ['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00'];
-    if (document.getElementById("noon").value)
-    {
-        document.getElementById("time").innerHTML = "<option disabled selected value=''>請選擇時間</option>";
-        for (let time of noon_time)
-        {
-            document.getElementById("time").innerHTML += '<option>' + time + '</option>';
-        }
-    }
-}
-
-function change2nighttime() {
-    let night_time = ['17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'];
-    if (document.getElementById("night").value)
-    {
-        document.getElementById("time").innerHTML = "<option disabled selected value=''>請選擇時間</option>";
-        for (let time of night_time)
-        {
-            document.getElementById("time").innerHTML += '<option>' + time + '</option>';
-        }
-    }
-}

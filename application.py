@@ -37,10 +37,12 @@ def after_request(response):
 
 @app.route("/")
 def index():
-    return redirect(url_for("form"))
+    return redirect(url_for("order"))
 
-@app.route("/longxing/form", methods=["GET", "POST"])
-def form():
+
+@app.route("/longxing/order", methods=["GET", "POST"])
+def order():
+    # POST method
     if request.method == "POST":
         # Message passing to user
         message = {}
@@ -52,14 +54,13 @@ def form():
         # Ensure the data is not before today
         datepicker = request.form.get('datepicker')
         today = date.today()
-        m, d, y = [int(x) for x in datepicker.split('/')]
+        y, m, d = [int(x) for x in datepicker.split('/')]
         reserved_date = date(y, m, d)
         if reserved_date < today:
             message['datepicker'] = f'預定日期小於今天日期{today}'
 
         section = request.form.get('section')
 
-        time = request.form.get('time')
 
         # Ensure at least order 1 table
         tables = request.form.get('tables')
@@ -87,7 +88,6 @@ def form():
                 phone=phone,
                 reserved_date=reserved_date,
                 section=section,
-                time=time,
                 tables=int(tables),
                 people=int(people) if people else None,
                 dishes=dishes,
@@ -96,25 +96,31 @@ def form():
             proxy = conn.execute(query)
             return redirect(url_for("sheet"))
 
+    # GET method
     else:
-        return render_template("form.html")
+        return render_template("order.html")
 
 
 @app.route("/longxing/sheet")
 def sheet():
     '''List the orders in db'''
 
-    # Columns to show on sheet
-    columns_selected = [table_orders.c.id, table_orders.c.reserved_date, table_orders.c.section, table_orders.c.name, table_orders.c.tables, table_orders.c.dishes, table_orders.c.phone, table_orders.c.remark]
+    # Get today date
+    today = date.today().strftime('%Y/%m/%d')
 
-    header = ['訂位日期', '時段', '名字', '桌數', '金額', '電話', '備註']
+    # Columns to show on sheet
+    columns_selected = [table_orders.c.id, table_orders.c.section, table_orders.c.name, table_orders.c.tables, table_orders.c.dishes, table_orders.c.phone, table_orders.c.remark]
+
+    header = ['時段', '名字', '桌數', '金額', '電話', '備註']
 
     # Get orders from db
-    query = select(columns_selected).where(table_orders.c.toshow==1)
+    query = select(columns_selected)\
+        .where(table_orders.c.toshow==1)\
+        .where(table_orders.c.reserved_date==date.today())
     proxy = conn.execute(query)
     orders = proxy.fetchall()
 
-    return render_template("sheet.html", header=header, orders=orders)
+    return render_template("sheet.html", today=today, header=header, orders=orders)
 
 @app.route('/longxing/statistic')
 def statistic():
@@ -124,35 +130,32 @@ def statistic():
 @app.route('/longxing/deleteorder/<int:id_number>')
 def delete_order(id_number):
 
-    # delete order
+    # Hide the deleted order
     query = table_orders.update().where(table_orders.c.id == id_number).values(toshow = 0)
     conn.execute(query)
 
+    # Get selected date
+    query = select([table_orders.c.reserved_date]).where(table_orders.c.id == id_number)
+    proxy = conn.execute(query)
+    date = proxy.fetchone()[0]
 
     # Columns to show on sheet
-    columns_selected = [table_orders.c.id, table_orders.c.reserved_date, table_orders.c.section, table_orders.c.name, table_orders.c.tables, table_orders.c.dishes, table_orders.c.phone, table_orders.c.remark]
+    columns_selected = [table_orders.c.id, table_orders.c.section, table_orders.c.name, table_orders.c.tables, table_orders.c.dishes, table_orders.c.phone, table_orders.c.remark]
 
     # Get orders from db
-    query = select(columns_selected).where(table_orders.c.toshow==1)
+    query = select(columns_selected)\
+        .where(table_orders.c.toshow==1)\
+        .where(table_orders.c.reserved_date==date)
     proxy = conn.execute(query)
     orders = proxy.fetchall()
 
     return render_template("order_list.html", orders=orders)
 
-# render edit from template
-@app.route("/longxing/editorder/<int:id_number>")
+# Edit order
+@app.route("/longxing/editorder/<int:id_number>", methods=["GET", "POST"])
 def edit_order(id_number):
 
-    query = select([table_orders]).where(table_orders.c.id==id_number)
-    proxy = conn.execute(query)
-    edit_order = proxy.fetchone()
-    reserved_date = edit_order["reserved_date"].strftime("%m/%d/%Y")
-    time = edit_order["time"].strftime("%H:%M") if edit_order["time"] is not None else "None"
-
-    return render_template("edit_form.html", edit_order=edit_order, reserved_date=reserved_date, time=time)
-
-@app.route("/longxing/edit_form/<int:id_number>", methods=["POST"])
-def edit_form(id_number):
+    # POST method
     if request.method == "POST":
         # Message passing to user
         message = {}
@@ -164,7 +167,7 @@ def edit_form(id_number):
         # Ensure the data is not before today
         datepicker = request.form.get('datepicker')
         today = date.today()
-        m, d, y = [int(x) for x in datepicker.split('/')]
+        y, m, d = [int(x) for x in datepicker.split('/')]
         reserved_date = date(y, m, d)
 
         if reserved_date < today:
@@ -209,7 +212,43 @@ def edit_form(id_number):
             proxy = conn.execute(query)
             return redirect(url_for("sheet"))
 
-# Ensure date is valid
+    # GET method
+    else:
+        query = select([table_orders]).where(table_orders.c.id==id_number)
+        proxy = conn.execute(query)
+        edit_order = proxy.fetchone()
+        reserved_date = edit_order["reserved_date"].strftime("%Y/%m/%d")
+
+        return render_template("edit_order.html", edit_order=edit_order, reserved_date=reserved_date)
+
+'''Update order lists by selected date and section'''
+@app.route("/longxing/sheetselected")
+def sheet_selected():
+    select_date = request.args.get('date')
+    y, m, d = [int(x) for x in select_date.split('/')]
+    select_date = date(y, m, d)
+    select_section = request.args.get('section')
+
+    # Columns to show on sheet
+    columns_selected = [table_orders.c.id, table_orders.c.section, table_orders.c.name, table_orders.c.tables, table_orders.c.dishes, table_orders.c.phone, table_orders.c.remark]
+
+    # Get orders from db
+    if (select_section == '整天'):
+        query = select(columns_selected)\
+            .where(table_orders.c.toshow==1)\
+            .where(table_orders.c.reserved_date==select_date)
+    else:
+        query = select(columns_selected)\
+            .where(table_orders.c.toshow==1)\
+            .where(table_orders.c.reserved_date==select_date)\
+            .where(table_orders.c.section==select_section)
+    proxy = conn.execute(query)
+    orders = proxy.fetchall()
+
+    return render_template("order_list.html", orders=orders)
+
+
+# Ensure date is valid (not functional currently)
 @app.route("/checkdatepicker")
 def check_datepicler():
     datepicker = request.args.get("datepicker")

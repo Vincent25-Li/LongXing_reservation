@@ -1,13 +1,8 @@
 {% extends "layout.html" %}
 
 {% block static %}
-    <!-- for datepicker -->
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <!---->
-
-    <link href="/static/css/form.css" rel="stylesheet">
-    <script src="/static/javascript/form.js"></script>  
+    <link href="/static/css/order.css" rel="stylesheet">
+    <script src="/static/javascript/order.js"></script>  
 {% endblock %}
 
 {% block main %}
@@ -16,7 +11,7 @@
     <h1 class="mb-3">線上訂位</h1>
 
     <!-- http://getbootstrap.com/docs/4.1/components/forms/ -->
-    <form action="/longxing/edit_form/{{edit_order["id"]}}" method="post" class="needs-validation" novalidate>
+    <form action="/longxing/edit_order/{{edit_order["id"]}}" method="post" class="needs-validation" novalidate>
 
         <!--聯絡人資訊-->
         <div class="form-row">
@@ -38,38 +33,19 @@
             <div class="invalid-feedback">必填</div>
         </div>
 
-        <!--用餐時間-->
+        <!--用餐時段-->
         <div class="form-group">
-            <label for='time'>用餐時間</label>
+            <label for='time'>用餐時段*</label>
             <div class="custom-control custom-radio">
                 <span class="section_block">
                     <input type="radio" class="custom-control-input" id="noon" name="section" value='中午' {% if edit_order["section"]=="中午" %}checked{% endif %} required>
-                    <label class="custom-control-label" for="noon">中午*</label>
+                    <label class="custom-control-label" for="noon">中午</label>
                 </span>
                 <span class="section_block">
                     <input type="radio" class="custom-control-input" id="night" name="section" value='晚上' {% if edit_order["section"]=="晚上" %}checked{% endif %}  required>
-                    <label class="custom-control-label" for="night">晚上*</label>
+                    <label class="custom-control-label" for="night">晚上</label>
                 </span>
             </div>
-            <select class="form-control" id="time" name='time'>
-                <option disabled {% if time=="None" %}selected{% endif %} value=''>請選擇時間</option>
-                {% if edit_order["section"]=="中午" %}
-                    <option {% if time=="11:00" %}selected{% endif %}>11:00</option>
-                    <option {% if time=="12:00" %}selected{% endif %}>12:00</option>
-                    <option {% if time=="12:30" %}selected{% endif %}>12:30</option>
-                    <option {% if time=="13:00" %}selected{% endif %}>13:00</option>
-                    <option {% if time=="13:30" %}selected{% endif %}>13:30</option>
-                    <option {% if time=="14:00" %}selected{% endif %}>14:00</option>
-                {% else %}
-                    <option {% if time=="17:00" %}selected{% endif %}>17:00</option>
-                    <option {% if time=="17:30" %}selected{% endif %}>17:30</option>
-                    <option {% if time=="18:00" %}selected{% endif %}>18:00</option>
-                    <option {% if time=="18:30" %}selected{% endif %}>18:30</option>
-                    <option {% if time=="19:00" %}selected{% endif %}>19:00</option>
-                    <option {% if time=="19:30" %}selected{% endif %}>19:30</option>
-                    <option {% if time=="20:00" %}selected{% endif %}>20:00</option>
-                {% endif %}
-            </select>
         </div>
 
         <!--用餐桌數-->

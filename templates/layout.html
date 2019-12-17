@@ -15,6 +15,12 @@
         <!-- fontawesome -->
         <link href="/static/fontawesome/css/all.css" rel="stylesheet">
         <script src="/static/fontawesome/js/all.js"></script>
+
+        <!-- for datepicker -->
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <script src="//code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script src="/static/javascript/datepicker-zh-TW.js"></script>
         {% block static %}{% endblock %}
 
         <title>龍興海鮮城</title>
@@ -22,7 +28,6 @@
     </head>
 
     <body>
-
         <!-- http://getbootstrap.com/docs/4.1/components/navbar/ -->
         <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
             <a class="navbar-brand mb-1 h1" href="/">龍興海鮮城</a>
@@ -32,7 +37,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="/longxing/form">年菜訂位</a>
+                        <a class="nav-link" href="/longxing/order">年菜訂位</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/longxing/sheet">訂位清單</a>
@@ -48,7 +53,12 @@
         <main class="container-fluid p-5">
             {% block main %}{% endblock %}
         </main>
-
+        <script>
+            // datepicker
+            $(function() {
+                $("#datepicker").datepicker($.datepicker.regional[ "zh-TW" ])
+            });
+        </script>
     </body>
 
 </html>
