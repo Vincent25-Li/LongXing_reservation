@@ -36,9 +36,12 @@ function delete_order() {
 
 // Update order list from server
 function select_orders() {
+    
     let select_date = document.querySelector('#datepicker').value;
     let select_section = document.querySelector('input[name="section"]:checked').value;
     $.get(`/longxing/sheetselected?date=${select_date}&section=${select_section}`, data => {
         document.querySelector("tbody").innerHTML = data;
+
+        delete_order()
     })
 }

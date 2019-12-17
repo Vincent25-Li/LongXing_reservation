@@ -4,8 +4,8 @@
         <td>{{ item | filter_none }}</td>
     {% endfor %}
     <td>
-        <a href="/longxing/editorder/{{order['id']}}"><button class="edit"><i class="far fa-edit"></i></button></a>
-        <button class="delete_order" data-id={{order['id']}}><i class="far fa-trash-alt"></i></button>
+        <a href="/longxing/editorder/{{order['id']}}"><button class="edit btn btn-outline-primary"><i class="far fa-edit"></i></button></a>
+        <button class="delete_order btn btn-outline-primary" data-id={{order['id']}}><i class="far fa-trash-alt"></i></button>
     </td>
 </tr>
 {% endfor %}
