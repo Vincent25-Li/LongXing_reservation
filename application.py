@@ -17,7 +17,7 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.jinja_env.filters["filter_none"] = filter_none
 
 # Create db engine
-engine = create_engine('mysql://b784cf9ee454b3:19d7c9c4@us-cdbr-iron-east-05.cleardb.net/heroku_5c5c458993391ff')
+engine = create_engine('mysql+pymysql://b784cf9ee454b3:19d7c9c4@us-cdbr-iron-east-05.cleardb.net/heroku_5c5c458993391ff')
 
 # Connect
 conn = engine.connect()
