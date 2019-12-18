@@ -1,3 +1,22 @@
+@keyframes order_alert {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        display: none;
+    }
+}
+
 .section_block {
     margin-right: 30px;
+}
+
+.alert {
+    animation-name: order_alert;
+    animation-duration: 5s;
+    animation-fill-mode: forwards;
 }

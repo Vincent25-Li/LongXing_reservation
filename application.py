@@ -1,6 +1,9 @@
 from datetime import date
+from tempfile import mkdtemp
+from werkzeug.security import check_password_hash
 
-from flask import Flask, redirect, url_for, request, render_template, jsonify
+from flask import Flask, redirect, url_for, request, render_template, jsonify, session
+from flask_session import Session
 from sqlalchemy import create_engine, MetaData, Table, select, update
 
 from helper import login_required, filter_none
@@ -24,6 +27,7 @@ metadata = MetaData()
 
 # Get table `orders_test`
 table_orders = Table('orders_test', metadata, autoload=True, autoload_with=engine)
+table_users = Table('users', metadata, autoload=True, autoload_with=engine)
 
 # Ensure responses aren't cached
 @app.after_request
@@ -35,13 +39,25 @@ def after_request(response):
     return response
 
 
+# Configure session to use filesystem (instead of signed cookies)
+app.config["SESSION_FILE_DIR"] = mkdtemp()
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
+
 @app.route("/")
+@login_required
 def index():
     return redirect(url_for("order"))
 
 
 @app.route("/longxing/order", methods=["GET", "POST"])
+@login_required
 def order():
+
+    session.pop('order', None)
+
     # POST method
     if request.method == "POST":
         # Message passing to user
@@ -94,7 +110,10 @@ def order():
                 remark=remark
             )
             proxy = conn.execute(query)
-            return redirect(url_for("sheet"))
+
+            session['order'] = f"新增： {reserved_date}  {name}  {tables}桌"
+
+            return render_template("order.html")
 
     # GET method
     else:
@@ -102,6 +121,7 @@ def order():
 
 
 @app.route("/longxing/sheet")
+@login_required
 def sheet():
     '''List the orders in db'''
 
@@ -123,11 +143,13 @@ def sheet():
     return render_template("sheet.html", today=today, header=header, orders=orders)
 
 @app.route('/longxing/statistic')
+@login_required
 def statistic():
     return render_template('statistic.html')
 
 # Hide the order by set toshow = 0
 @app.route('/longxing/deleteorder/<int:id_number>')
+@login_required
 def delete_order(id_number):
 
     # Hide the deleted order
@@ -153,6 +175,7 @@ def delete_order(id_number):
 
 # Edit order
 @app.route("/longxing/editorder/<int:id_number>", methods=["GET", "POST"])
+@login_required
 def edit_order(id_number):
 
     # POST method
@@ -174,8 +197,6 @@ def edit_order(id_number):
             message['datepicker'] = f'預定日期小於今天日期{today}'
 
         section = request.form.get('section')
-
-        time = request.form.get('time')
 
         # Ensure at least order 1 table
         tables = request.form.get('tables')
@@ -203,7 +224,6 @@ def edit_order(id_number):
                 phone=phone,
                 reserved_date=reserved_date,
                 section=section,
-                time=time,
                 tables=int(tables),
                 people=int(people) if people else None,
                 dishes=dishes,
@@ -223,6 +243,7 @@ def edit_order(id_number):
 
 '''Update order lists by selected date and section'''
 @app.route("/longxing/sheetselected")
+@login_required
 def sheet_selected():
     select_date = request.args.get('date')
     y, m, d = [int(x) for x in select_date.split('/')]
@@ -247,6 +268,47 @@ def sheet_selected():
 
     return render_template("order_list.html", orders=orders)
 
+
+@app.route("/longxing/login", methods=["GET", "POST"])
+def login():
+    """Log user in"""
+
+    # Forget any user_id
+    session.clear()
+
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+
+        # Query database for account
+        query = select([table_users])\
+            .where(table_users.c.account==request.form.get("account"))
+        proxy = conn.execute(query)
+        account = proxy.fetchall()
+
+        # Ensure account exists and password is correct
+        if len(account) != 1 or not check_password_hash(account[0]["password"], request.form.get("password")):
+            return render_template("error.html", message={"error": "帳號不存在或密碼錯誤"})
+
+        # Remember which user has logged in
+        session["user_id"] = account[0]["id"]
+
+        # Redirect account to home page
+        return redirect("/")
+
+    # User reached route via GET (as by clicking a link or via redirect)
+    else:
+        return render_template("login.html")
+
+
+@app.route("/longxing/logout")
+def logout():
+    """Log user out"""
+
+    # Forget any user_id
+    session.clear()
+
+    # Redirect user to login form
+    return redirect("/")
 
 # Ensure date is valid (not functional currently)
 @app.route("/checkdatepicker")

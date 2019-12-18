@@ -6,8 +6,17 @@
 {% endblock %}
 
 {% block main %}
+    
     <!-- http://getbootstrap.com/docs/4.1/content/typography/ -->
-    <h1 class="mb-3">線上訂位</h1>
+    <div class="row">
+        <div class="col">
+            <h1 class="mb-3">線上訂位</h1>
+        </div>
+        {% if session.order %}
+        <div class="alert alert-success">{{ session.order }}</div>
+    {% endif %}
+    </div>
+    
 
     <!-- http://getbootstrap.com/docs/4.1/components/forms/ -->
     <form action="/longxing/order" method="post" class="needs-validation" novalidate>
