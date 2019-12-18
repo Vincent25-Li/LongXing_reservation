@@ -17,7 +17,7 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.jinja_env.filters["filter_none"] = filter_none
 
 # Create db engine
-engine = create_engine('mysql+pymysql://b784cf9ee454b3:19d7c9c4@us-cdbr-iron-east-05.cleardb.net/heroku_5c5c458993391ff', pool_pre_ping=True)
+engine = create_engine('mysql+pymysql://b784cf9ee454b3:19d7c9c4@us-cdbr-iron-east-05.cleardb.net/heroku_5c5c458993391ff', pool_recycle=3600)
 
 # Connect
 conn = engine.connect()
@@ -41,7 +41,7 @@ def after_request(response):
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_FILE_DIR"] = mkdtemp()
-app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_PERMANENT"] = True
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
